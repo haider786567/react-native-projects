@@ -3,22 +3,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 
-type LoginFormValues = {
+type RegisterFormValues = {
+  name: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
-const LoginForm = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+const RegisterForm = () => {
+  const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
     defaultValues: {
+      name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    // Basic form handling – wire up real login logic here
-    console.log('Login data:', data);
+  const onSubmit = (data: RegisterFormValues) => {
+    // Basic form handling – wire up real registration logic here
+    console.log('Register data:', data);
     router.push('/(protected)/(tabs)/home');
   };
 
@@ -35,8 +39,27 @@ const LoginForm = () => {
         >
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Login to your account</Text>
+              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.subtitle}>Sign up to get started</Text>
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Full Name</Text>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your full name"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
             </View>
 
             <View style={styles.field}>
@@ -68,7 +91,7 @@ const LoginForm = () => {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry
                     onBlur={onBlur}
@@ -80,18 +103,40 @@ const LoginForm = () => {
               {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
             </View>
 
+            <View style={styles.field}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Re-enter your password"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.confirmPassword && (
+                <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
+              )}
+            </View>
+
             <Pressable
               style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
               onPress={handleSubmit(onSubmit)}
             >
-              <Text style={styles.primaryButtonText}>Login</Text>
+              <Text style={styles.primaryButtonText}>Sign Up</Text>
             </Pressable>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
-              <Link href="/register" asChild>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <Link href="/login" asChild>
                 <Pressable>
-                  <Text style={styles.linkText}>Create Account</Text>
+                  <Text style={styles.linkText}>Sign In</Text>
                 </Pressable>
               </Link>
             </View>
@@ -193,4 +238,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginForm;
+export default RegisterForm;

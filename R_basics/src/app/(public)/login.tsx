@@ -1,12 +1,12 @@
 import { View, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import RegisterForm from '../../components/RegisterForm';
+import LoginForm from '../../components/LoginForm';
 
-const Register = () => {
+const Login = () => {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-      <RegisterForm />
+      <LoginForm />
     </View>
   );
 };
@@ -18,4 +18,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Register;
+export default Login;
+
