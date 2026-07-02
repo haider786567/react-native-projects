@@ -2,7 +2,8 @@ import { View, Text, Pressable, TextInput, Platform, StyleSheet, KeyboardAvoidin
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../validation/login.validation';
 type LoginFormValues = {
   email: string;
   password: string;
@@ -10,6 +11,7 @@ type LoginFormValues = {
 
 const LoginForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -17,9 +19,10 @@ const LoginForm = () => {
   });
 
   const onSubmit = (data: LoginFormValues) => {
+    
     // Basic form handling – wire up real login logic here
     console.log('Login data:', data);
-    router.push('/(protected)/(tabs)/home');
+    router.push('/home');
   };
 
   return (
@@ -88,7 +91,7 @@ const LoginForm = () => {
             </Pressable>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
+              <Text style={styles.footerText}>Don&apos;t have an account? </Text>
               <Link href="/register" asChild>
                 <Pressable>
                   <Text style={styles.linkText}>Create Account</Text>

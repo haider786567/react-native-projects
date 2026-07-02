@@ -2,6 +2,8 @@ import { View, Text, Pressable, TextInput, Platform, StyleSheet, KeyboardAvoidin
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { RegisterSchema } from '../validation/register.validation';
 
 type RegisterFormValues = {
   name: string;
@@ -12,6 +14,7 @@ type RegisterFormValues = {
 
 const RegisterForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -23,7 +26,7 @@ const RegisterForm = () => {
   const onSubmit = (data: RegisterFormValues) => {
     // Basic form handling – wire up real registration logic here
     console.log('Register data:', data);
-    router.push('/(protected)/(tabs)/home');
+    router.push('/login');
   };
 
   return (
