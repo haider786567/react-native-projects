@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import { Image } from "expo-image";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import  homeImg from "@/assets/images/home.jpg";
+import  homeImg from "../../assets/images/home.jpg";
 
 export default function Home() {
   return (
