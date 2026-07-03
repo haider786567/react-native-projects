@@ -6,7 +6,7 @@ import  homeImg from "../../assets/images/home.jpg";
 
 export default function Home() {
   return (
-    <SafeAreaView className="flex-1 bg-slate-100">
+    <SafeAreaView  style={{ flex: 1, backgroundColor: "#F1F5F9" }}>
       <View className="flex-[2] items-center justify-center rounded-b-[32px] bg-slate-950 px-6">
         <Image
           source={homeImg}
