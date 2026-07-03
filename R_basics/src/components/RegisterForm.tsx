@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, Platform, StyleSheet, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Text, Pressable, TextInput, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
@@ -30,118 +30,119 @@ const RegisterForm = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
+        className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          className="flex-1"
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.card}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>Sign up to get started</Text>
-            </View>
+          <View className="w-full max-w-lg self-center px-5 py-6">
+            <View className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-900/10">
+              <View className="mb-6">
+                <Text className="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">Create Account</Text>
+                <Text className="text-sm text-slate-500">Sign up to get started</Text>
+              </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Full Name</Text>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your full name"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
-            </View>
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-semibold text-slate-700">Full Name</Text>
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                      placeholder="Enter your full name"
+                      placeholderTextColor="#9CA3AF"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.name && <Text className="mt-1 text-xs text-rose-600">{errors.name.message}</Text>}
+              </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Email</Text>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#9CA3AF"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-            </View>
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-semibold text-slate-700">Email</Text>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                      placeholder="Enter your email"
+                      placeholderTextColor="#9CA3AF"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.email && <Text className="mt-1 text-xs text-rose-600">{errors.email.message}</Text>}
+              </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Password</Text>
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Create a password"
-                    placeholderTextColor="#9CA3AF"
-                    secureTextEntry
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-            </View>
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-semibold text-slate-700">Password</Text>
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                      placeholder="Create a password"
+                      placeholderTextColor="#9CA3AF"
+                      secureTextEntry
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.password && <Text className="mt-1 text-xs text-rose-600">{errors.password.message}</Text>}
+              </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <Controller
-                control={control}
-                name="confirmPassword"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Re-enter your password"
-                    placeholderTextColor="#9CA3AF"
-                    secureTextEntry
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.confirmPassword && (
-                <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
-              )}
-            </View>
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-semibold text-slate-700">Confirm Password</Text>
+                <Controller
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                      placeholder="Re-enter your password"
+                      placeholderTextColor="#9CA3AF"
+                      secureTextEntry
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+                {errors.confirmPassword && <Text className="mt-1 text-xs text-rose-600">{errors.confirmPassword.message}</Text>}
+              </View>
 
-            <Pressable
-              style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
-              onPress={handleSubmit(onSubmit)}
-            >
-              <Text style={styles.primaryButtonText}>Sign Up</Text>
-            </Pressable>
+              <Pressable
+                className="mt-2 items-center rounded-xl bg-indigo-600 py-3"
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text className="text-base font-semibold text-white">Sign Up</Text>
+              </Pressable>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have an account? </Text>
-              <Link href="/login" asChild>
-                <Pressable>
-                  <Text style={styles.linkText}>Sign In</Text>
-                </Pressable>
-              </Link>
+              <View className="mt-5 flex-row items-center justify-center">
+                <Text className="text-sm text-slate-500">Already have an account? </Text>
+                <Link href="/login" asChild>
+                  <Pressable>
+                    <Text className="text-sm font-semibold text-indigo-600">Sign In</Text>
+                  </Pressable>
+                </Link>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -149,96 +150,5 @@ const RegisterForm = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
-  flex: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  header: {
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#6B7280',
-  },
-  field: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-    padding: 12,
-    borderRadius: 10,
-    fontSize: 15,
-    color: '#111827',
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  primaryButton: {
-    backgroundColor: '#4F46E5',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  primaryButtonPressed: {
-    opacity: 0.85,
-  },
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    color: '#6B7280',
-    fontSize: 14,
-  },
-  linkText: {
-    color: '#4F46E5',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
 
 export default RegisterForm;

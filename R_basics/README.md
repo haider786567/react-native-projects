@@ -1,6 +1,6 @@
 # React Native & NativeWind Basics - Expo SDK 54
 
-This guide covers the installation and setup of Expo SDK 54 with NativeWind, along with the basics of React Native and NativeWind.
+This guide covers the installation and setup of Expo SDK 54 with NativeWind v5, along with the basics of React Native and NativeWind.
 
 ## 📋 Table of Contents
 
@@ -69,55 +69,25 @@ npm install nativewind
 
 # Install Tailwind CSS
 npm install -D tailwindcss
-npx tailwindcss init
 
 # Install PostCSS for Tailwind CSS processing
 npm install -D postcss postcss autoprefixer
 ```
 
-### Step 2: Initialize Tailwind CSS
+### Step 2: Confirm `metro.config.js`
 
-```bash
-npx tailwindcss init
-```
-
-### Step 3: Configure `tailwind.config.js`
-
-Update your `tailwind.config.js`:
+The repo already uses the NativeWind Metro wrapper:
 
 ```js
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./app/**/*.{js,jsx,ts,tsx}",
-    "./components/**/*.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativewind } = require("nativewind/metro");
+
+const config = getDefaultConfig(__dirname);
+
+module.exports = withNativewind(config);
 ```
 
-### Step 4: Update `babel.config.js`
-
-NativeWind v4 requires Babel configuration. Update `babel.config.js`:
-
-```js
-module.exports = function (api) {
-  api.cache(true);
-  return {
-    presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }]],
-    plugins: [
-      // Required for NativeWind v4
-      "nativewind/babel",
-    ],
-  };
-};
-```
-
-### Step 5: Create `postcss.config.mjs`
+### Step 3: Keep `postcss.config.mjs`
 
 The `postcss.config.mjs` file should already be created:
 
@@ -130,7 +100,7 @@ export default {
 }
 ```
 
-### Step 6: Add Global CSS
+### Step 4: Add Global CSS
 
 Copy this content to `global.css`:
 
@@ -140,7 +110,7 @@ Copy this content to `global.css`:
 @tailwind utilities;
 ```
 
-### Step 7: Import Global CSS
+### Step 5: Import Global CSS
 
 Import the global CSS in your entry file (`app/_layout.tsx` or `App.tsx`):
 
@@ -154,12 +124,12 @@ export default function RootLayout() {
 }
 ```
 
-### Step 8: Create NativeWind Type Definitions
+### Step 6: Keep NativeWind Type Definitions
 
 Create `nativewind-env.d.ts`:
 
 ```ts
-/// <reference types="nativewind/types" />
+/// <reference types="react-native-css/types" />
 ```
 
 ---
@@ -459,13 +429,11 @@ R_basics/
 │   └── ...
 ├── .gitignore
 ├── app.json              # Expo configuration
-├── babel.config.js       # Babel configuration
 ├── global.css            # Global styles with Tailwind
 ├── metro.config.js       # Metro bundler config
 ├── nativewind-env.d.ts   # NativeWind TypeScript definitions
 ├── package.json          # Dependencies
 ├── postcss.config.mjs    # PostCSS configuration
-├── tailwind.config.js    # Tailwind CSS configuration
 └── tsconfig.json         # TypeScript configuration
 ```
 
