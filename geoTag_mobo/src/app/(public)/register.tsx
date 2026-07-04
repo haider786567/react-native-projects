@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import RegisterForm from '../../components/RegisterForm';
+import RegisterForm from '../../features/auth/components/RegisterForm';
 
 const Register = () => {
   return (

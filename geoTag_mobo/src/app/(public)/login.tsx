@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import LoginForm from '../../components/LoginForm';
+import LoginForm from '../../features/auth/components/LoginForm';
 
 const Login = () => {
   return (

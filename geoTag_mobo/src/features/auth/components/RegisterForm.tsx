@@ -3,7 +3,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RegisterSchema } from '../validation/register.validation';
+import { RegisterSchema } from '../validations/register.validation';
+import Screen from '@/src/components/Screen';
+import Input from '@/src/components/Input';
 
 type RegisterFormValues = {
   name: string;
@@ -30,7 +32,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F1F5F9' }}>
+    <Screen>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -54,8 +56,7 @@ const RegisterForm = () => {
                   control={control}
                   name="name"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                    <Input
                       placeholder="Enter your full name"
                       placeholderTextColor="#9CA3AF"
                       onBlur={onBlur}
@@ -73,8 +74,7 @@ const RegisterForm = () => {
                   control={control}
                   name="email"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                    <Input
                       placeholder="Enter your email"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="email-address"
@@ -94,8 +94,7 @@ const RegisterForm = () => {
                   control={control}
                   name="password"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                    <Input
                       placeholder="Create a password"
                       placeholderTextColor="#9CA3AF"
                       secureTextEntry
@@ -114,8 +113,7 @@ const RegisterForm = () => {
                   control={control}
                   name="confirmPassword"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900"
+                    <Input
                       placeholder="Re-enter your password"
                       placeholderTextColor="#9CA3AF"
                       secureTextEntry
@@ -147,7 +145,7 @@ const RegisterForm = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Screen>
   );
 };
 
