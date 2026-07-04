@@ -30,7 +30,7 @@ const LoginForm = () => {
     
     // Basic form handling – wire up real login logic here
     console.log('Login data:', data);
-    router.push('/home');
+    router.replace('/(protected)/(tabs)/home');
   };
 
   return (
