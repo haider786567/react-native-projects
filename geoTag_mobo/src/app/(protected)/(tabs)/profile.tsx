@@ -3,6 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppScreen } from '../../../components/ui/AppScreen';
 import { InfoCard, SectionHeader } from '../../../components/ui/Dashboard';
 import { ScreenHeader } from '../../../components/ui/ScreenHeader';
+import { router } from 'expo-router';
+import { useAuth } from '../../../features/auth/hooks/auth.hooks';
 
 const settings = [
   { icon: 'cloud-outline' as const, label: 'Cloud sync', value: 'On' },
@@ -12,16 +14,24 @@ const settings = [
 ];
 
 export default function ProfileScreen() {
+  const { user, handleLogout, isLoading } = useAuth();
+  const initials = user?.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'U';
+
+  const signOut = async () => {
+    await handleLogout();
+    router.replace('/login');
+  };
+
   return (
     <AppScreen>
       <ScreenHeader title="Profile" subtitle="Manage your account and preferences." />
       <InfoCard>
         <View className="items-center py-2">
           <View className="h-24 w-24 items-center justify-center rounded-full bg-indigo-100">
-            <Text className="text-3xl font-extrabold text-indigo-700">HK</Text>
+            <Text className="text-3xl font-extrabold text-indigo-700">{initials}</Text>
           </View>
-          <Text className="mt-4 text-xl font-extrabold text-slate-950">Haider Khan</Text>
-          <Text className="mt-1 text-sm text-slate-500">haider@example.com</Text>
+          <Text className="mt-4 text-xl font-extrabold text-slate-950">{user?.name}</Text>
+          <Text className="mt-1 text-sm text-slate-500">{user?.email}</Text>
           <Pressable
             className="mt-5 rounded-xl border border-slate-200 px-5 py-2.5 active:bg-slate-100"
             onPress={() => Alert.alert('Edit profile', 'Connect your profile editor here.')}
@@ -61,6 +71,14 @@ export default function ProfileScreen() {
           </Pressable>
         ))}
       </View>
+
+      <Pressable
+        className="mt-5 items-center rounded-xl bg-rose-600 py-3.5 active:opacity-80"
+        disabled={isLoading}
+        onPress={() => void signOut()}
+      >
+        <Text className="font-semibold text-white">{isLoading ? 'Signing out…' : 'Sign out'}</Text>
+      </Pressable>
     </AppScreen>
   );
 }

@@ -22,8 +22,8 @@ const router = Router();
 const authLimiter = createRateLimiter(10, 15 * 60 * 1000);
 const passwordResetLimiter = createRateLimiter(5, 15 * 60 * 1000);
 
-router.post("/register", authLimiter, validateRegister, RegisterController);
-router.post("/login", authLimiter, validateLogin, LoginController);
+router.post("/register",  validateRegister, RegisterController);
+router.post("/login", validateLogin, LoginController);
 router.post("/logout", identifyUser, LogoutController);
 router.post("/forgot-password", passwordResetLimiter, validateForgotPassword, ForgotPasswordController);
 router.post("/reset-password", passwordResetLimiter, validateResetPassword, ResetPasswordController);

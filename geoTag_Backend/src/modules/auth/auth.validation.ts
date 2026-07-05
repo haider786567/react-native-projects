@@ -4,7 +4,10 @@ import zod from "zod";
 const email = zod.string().trim().toLowerCase().email({ message: "Invalid email address" });
 const password = zod.string().min(8, { message: "Password must be at least 8 characters long" });
 
-export const loginSchema = zod.object({ email, password });
+export const loginSchema = zod.object({
+  email,
+  password: zod.string().min(1, { message: "Password is required" }),
+});
 
 export const registerSchema = zod.object({
   name: zod.string().trim().min(1, { message: "Name is required" }).max(100),

@@ -3,16 +3,15 @@ import {
   Platform,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../validations/login.validation';
 import Screen from '@/src/components/Screen';
+import { useAuth } from '../hooks/auth.hooks';
 import Input from '@/src/components/Input';
 type LoginFormValues = {
   email: string;
@@ -20,6 +19,7 @@ type LoginFormValues = {
 };
 
 const LoginForm = () => {
+  const { handleLogin, isLoading, error } = useAuth();
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -28,11 +28,13 @@ const LoginForm = () => {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    
-    // Basic form handling – wire up real login logic here
-    console.log('Login data:', data);
-    router.replace('/(protected)/(tabs)/home');
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      await handleLogin(data);
+      router.replace('/home');
+    } catch {
+      // The hook exposes a user-friendly error below the form.
+    }
   };
 
   return (
@@ -93,13 +95,21 @@ const LoginForm = () => {
                 {errors.password && <Text className="mt-1 text-xs text-rose-600">{errors.password.message}</Text>}
               </View>
 
+              <Link href="/forgot-password" asChild>
+                <TouchableOpacity className="mb-2 self-end">
+                  <Text className="text-sm font-semibold text-indigo-600">Forgot password?</Text>
+                </TouchableOpacity>
+              </Link>
+
               <TouchableOpacity
                 activeOpacity={0.85}
                 className="mt-2 items-center rounded-xl bg-indigo-600 py-3"
                 onPress={handleSubmit(onSubmit)}
+                disabled={isLoading}
               >
-                <Text className="text-base font-semibold text-white">Login</Text>
+                <Text className="text-base font-semibold text-white">{isLoading ? 'Signing in…' : 'Login'}</Text>
               </TouchableOpacity>
+              {error ? <Text className="mt-3 text-center text-sm text-rose-600">{error}</Text> : null}
 
               <View className="mt-5 flex-row items-center justify-center">
                 <Text className="text-sm text-slate-500">Don&apos;t have an account? </Text>

@@ -1,12 +1,11 @@
-import { View, Text, Pressable, TextInput, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Pressable, Platform, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RegisterSchema } from '../validations/register.validation';
 import Screen from '@/src/components/Screen';
 import Input from '@/src/components/Input';
-
+import {useAuth} from '../hooks/auth.hooks';
 type RegisterFormValues = {
   name: string;
   email: string;
@@ -24,11 +23,15 @@ const RegisterForm = () => {
       confirmPassword: '',
     },
   });
+  const { handleRegister, isLoading, error } = useAuth();
 
-  const onSubmit = (data: RegisterFormValues) => {
-    // Basic form handling – wire up real registration logic here
-    console.log('Register data:', data);
-    router.push('/login');
+  const onSubmit = async (data: RegisterFormValues) => {
+    try {
+      await handleRegister(data);
+      router.replace('/home');
+    } catch {
+      // The hook exposes a user-friendly error below the form.
+    }
   };
 
   return (
@@ -129,9 +132,11 @@ const RegisterForm = () => {
               <Pressable
                 className="mt-2 items-center rounded-xl bg-indigo-600 py-3"
                 onPress={handleSubmit(onSubmit)}
+                disabled={isLoading}
               >
-                <Text className="text-base font-semibold text-white">Sign Up</Text>
+                <Text className="text-base font-semibold text-white">{isLoading ? 'Creating account…' : 'Sign Up'}</Text>
               </Pressable>
+              {error ? <Text className="mt-3 text-center text-sm text-rose-600">{error}</Text> : null}
 
               <View className="mt-5 flex-row items-center justify-center">
                 <Text className="text-sm text-slate-500">Already have an account? </Text>
