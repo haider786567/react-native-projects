@@ -1,63 +1,89 @@
-import { LoginService, RefreshTokenService,RegisterService } from "./auth.service.js";
 import type { Request, Response } from "express";
+import {
+  ForgotPasswordService,
+  GetmeService,
+  LoginService,
+  LogoutService,
+  RefreshTokenService,
+  RegisterService,
+  ResetPasswordService,
+} from "./auth.service.js";
+
+const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Internal server error.";
+
+const statusFor = (error: unknown) => {
+  const message = errorMessage(error);
+  if (["Invalid credentials", "Invalid refresh token", "Invalid or expired reset token"].includes(message)) return 401;
+  if (message === "User not found") return 404;
+  if (message === "User already exists") return 409;
+  if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) return 409;
+  return 500;
+};
+
+const respondWithError = (res: Response, error: unknown) => {
+  const status = statusFor(error);
+  if (status === 500) console.error("Authentication error:", error);
+  const message = status === 500 ? "Internal server error." :
+    status === 409 ? "User already exists" : errorMessage(error);
+  return res.status(status).json({ message });
+};
 
 export const LoginController = async (req: Request, res: Response) => {
-    try {
-        const result = await LoginService(req.body);
-        res.json(result);
-    } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-}
+  try {
+    res.json(await LoginService(req.body));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
 
 export const RegisterController = async (req: Request, res: Response) => {
-    try {
-        const result = await RegisterService(req.body);
-        res.json(result);
-    } catch (error) {
-        console.error("Error during registration:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-}
+  try {
+    res.status(201).json(await RegisterService(req.body));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
 
 export const LogoutController = async (req: Request, res: Response) => {
-    try {
-        // Implement logout logic here
-        res.json({ message: "User logged out successfully." });
-    } catch (error) {
-        console.error("Error during logout:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-}
+  try {
+    res.json(await LogoutService(req.user.id));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
 
 export const ForgotPasswordController = async (req: Request, res: Response) => {
-    try {
-        // Implement forgot password logic here
-        res.json({ message: "Password reset link sent successfully." });
-    } catch (error) {
-        console.error("Error during forgot password:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-}
+  try {
+    const resetToken = await ForgotPasswordService(req.body);
+    res.json({
+      message: "If that email is registered, password reset instructions have been generated.",
+      ...(process.env.NODE_ENV !== "production" && resetToken ? { resetToken } : {}),
+    });
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
 
 export const ResetPasswordController = async (req: Request, res: Response) => {
-    try {
-        // Implement reset password logic here
-        res.json({ message: "Password reset successfully." });
-    } catch (error) {
-        console.error("Error during reset password:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-}
+  try {
+    res.json(await ResetPasswordService(req.body));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
 
 export const RefreshTokenController = async (req: Request, res: Response) => {
-    try {
-        const result = await RefreshTokenService(req.body.refreshToken);
-        res.json(result);
-    } catch (error) {
-        console.error("Error during token refresh:", error);
-        res.status(500).json({ message: "Internal server error." });
-        
-    }
-}
+  try {
+    res.json(await RefreshTokenService(req.body.refreshToken));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
+
+export const GetMeController = async (req: Request, res: Response) => {
+  try {
+    res.json(await GetmeService(req.user.id));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};

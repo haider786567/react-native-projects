@@ -4,8 +4,11 @@ import { ConnectDb } from './config/mongo.js';
 
 const PORT = process.env.PORT || 3000;
 
-ConnectDb()
+const startServer = async () => {
+  await ConnectDb();
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port  ${PORT}`);
-});
+void startServer();

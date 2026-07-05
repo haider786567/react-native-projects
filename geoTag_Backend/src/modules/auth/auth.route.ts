@@ -1,22 +1,33 @@
 import { Router } from "express";
-import { LoginController, RegisterController, LogoutController, ForgotPasswordController, ResetPasswordController, RefreshTokenController } from "./auth.controller.js";
+import {
+  ForgotPasswordController,
+  GetMeController,
+  LoginController,
+  LogoutController,
+  RefreshTokenController,
+  RegisterController,
+  ResetPasswordController,
+} from "./auth.controller.js";
+import {
+  validateForgotPassword,
+  validateLogin,
+  validateRefreshToken,
+  validateRegister,
+  validateResetPassword,
+} from "./auth.validation.js";
+import { identifyUser } from "../../middlewares/auth.middleware.js";
+import { createRateLimiter } from "../../middlewares/rate-limit.middleware.js";
 
 const router = Router();
+const authLimiter = createRateLimiter(10, 15 * 60 * 1000);
+const passwordResetLimiter = createRateLimiter(5, 15 * 60 * 1000);
 
-
-router.post("/register", RegisterController);
-
-router.post("/login", LoginController);
-
-router.post("/logout", LogoutController);
-
-router.post("/forgot-password", ForgotPasswordController);
-
-router.post("/reset-password", ResetPasswordController);
-    
-router.get("/refresh-token", RefreshTokenController);
-
-export { router as authRouter };
-
+router.post("/register", authLimiter, validateRegister, RegisterController);
+router.post("/login", authLimiter, validateLogin, LoginController);
+router.post("/logout", identifyUser, LogoutController);
+router.post("/forgot-password", passwordResetLimiter, validateForgotPassword, ForgotPasswordController);
+router.post("/reset-password", passwordResetLimiter, validateResetPassword, ResetPasswordController);
+router.post("/refresh-token", authLimiter, validateRefreshToken, RefreshTokenController);
+router.get("/me", identifyUser, GetMeController);
 
 export default router;
