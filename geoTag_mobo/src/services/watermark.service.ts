@@ -10,4 +10,12 @@ export const WatermarkService = {
 			result: 'tmpfile',
 		});
 	},
+
+	async capturePageWithWatermark(viewRef: RefObject<View | null>): Promise<string> {
+		return captureRef(viewRef, {
+			format: 'jpg',
+			quality: 0.92,
+			result: 'tmpfile',
+		});
+	},
 };

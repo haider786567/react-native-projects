@@ -5,10 +5,13 @@ import { sessionRestored, signedOut } from "../features/auth/store/auth.slice";
 import { setUnauthorizedHandler } from "../services/api";
 import { store } from "./index";
 
+import { bootstrapLanguage } from "./preferences.slice";
+
 const SessionBootstrap = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     setUnauthorizedHandler(() => store.dispatch(signedOut()));
     void restoreSession().then((user) => store.dispatch(sessionRestored(user)));
+    void store.dispatch(bootstrapLanguage());
     return () => setUnauthorizedHandler(null);
   }, []);
   return children;

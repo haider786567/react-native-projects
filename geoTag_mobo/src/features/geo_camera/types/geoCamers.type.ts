@@ -53,6 +53,13 @@ export type CameraZoomOption = {
 	value: number;
 };
 
+export type CropRegion = {
+	originX: number;
+	originY: number;
+	width: number;
+	height: number;
+};
+
 export type CapturedReviewProps = {
 	uri: string;
 	locationLabel?: string;
@@ -64,7 +71,9 @@ export type CapturedReviewProps = {
 	onRequestLocation?: () => void;
 	onRetake: () => void;
 	onSave: () => void;
+	onCrop?: () => void;
 	isSaving?: boolean;
+	isCropping?: boolean;
 };
 
 export type CameraPreviewProps = {
