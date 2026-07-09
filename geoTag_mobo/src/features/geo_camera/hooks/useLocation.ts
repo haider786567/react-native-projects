@@ -34,7 +34,7 @@ export function useLocation(autoRequest = true): UseLocationResult {
 	const [accuracy, setAccuracy] = useState<number | null>(null);
 	const [placeName, setPlaceName] = useState<string | null>(null);
 
-	const refresh = async () => {
+	const refresh = useCallback(async () => {
 		try {
 			const next = await Location.getCurrentPositionAsync({
 				accuracy: Location.Accuracy.High,
@@ -45,7 +45,7 @@ export function useLocation(autoRequest = true): UseLocationResult {
 		} catch {
 			setState((current) => (current === 'denied' ? 'denied' : current));
 		}
-	};
+	}, []);
 
 	const request = useCallback(async () => {
 		const { status } = await Location.requestForegroundPermissionsAsync();
@@ -56,21 +56,30 @@ export function useLocation(autoRequest = true): UseLocationResult {
 		}
 		setState('searching');
 		await refresh();
-	}, []);
+	}, [refresh]);
 
 	useEffect(() => {
 		if (!autoRequest) return;
 		void request();
-		const subscription = Location.watchPositionAsync(
+		let subscription: { remove: () => void } | null = null;
+		let isActive = true;
+		void Location.watchPositionAsync(
 			{ accuracy: Location.Accuracy.Balanced, distanceInterval: 5 },
 			(location) => {
 				setCoords(location.coords);
 				setAccuracy(location.coords.accuracy ?? null);
 				setState('locked');
 			},
-		);
+		).then((nextSubscription) => {
+			if (isActive) {
+				subscription = nextSubscription;
+				return;
+			}
+			nextSubscription.remove();
+		});
 		return () => {
-			void subscription.then((s) => s.remove()).catch(() => undefined);
+			isActive = false;
+			subscription?.remove();
 		};
 	}, [autoRequest, request]);
 
@@ -98,7 +107,7 @@ export function useLocation(autoRequest = true): UseLocationResult {
 		return () => {
 			cancelled = true;
 		};
-	}, [coords?.latitude, coords?.longitude, state]);
+	}, [coords, state]);
 
 	return { coords, state, accuracy, placeName, request, refresh };
 }

@@ -14,7 +14,9 @@ export const CapturedReview = forwardRef<View, CapturedReviewProps>(function Cap
 	onRequestLocation,
 	onRetake,
 	onSave,
+	onCrop,
 	isSaving = false,
+	isCropping = false,
 }, ref) {
 	const stamp = timestamp ?? new Date().toLocaleString();
 	const isGpsDenied = gpsState === 'denied';
@@ -97,6 +99,15 @@ export const CapturedReview = forwardRef<View, CapturedReviewProps>(function Cap
 					>
 						<Ionicons color="white" name="refresh" size={18} />
 						<Text className="text-base font-bold text-white">Retake</Text>
+					</Pressable>
+					<Pressable
+						accessibilityRole="button"
+						accessibilityLabel="Crop photo"
+						className="h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-amber-500/90 active:opacity-80"
+						disabled={isCropping}
+						onPress={onCrop}
+					>
+						<Ionicons color="white" name="crop" size={22} />
 					</Pressable>
 					<Pressable
 						accessibilityRole="button"
