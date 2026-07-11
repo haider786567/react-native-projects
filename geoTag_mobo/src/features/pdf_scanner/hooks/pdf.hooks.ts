@@ -6,6 +6,8 @@ import { Alert, View, Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import { StorageAccessFramework } from 'expo-file-system/legacy';
 
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { useLocation } from '../../geo_camera/hooks/useLocation';
 import { lightTap, mediumTap, success } from '../../geo_camera/hooks/useCamers';
 import { generatePdfFromPages } from '../services/pdf.service';
@@ -246,6 +248,42 @@ export function usePdfScanner() {
 		void lightTap();
 	}, [pages.length]);
 
+	const [isCropVisible, setIsCropVisible] = useState(false);
+	const [isCropping, setIsCropping] = useState(false);
+
+	const handleApplyCrop = useCallback(async (index: number, region: { originX: number; originY: number; width: number; height: number }) => {
+		setIsCropping(true);
+		try {
+			await mediumTap();
+			const page = pages[index];
+			const result = await ImageManipulator.manipulateAsync(
+				page.uri,
+				[
+					{
+						crop: {
+							originX: Math.round(region.originX),
+							originY: Math.round(region.originY),
+							width: Math.round(region.width),
+							height: Math.round(region.height),
+						},
+					},
+				],
+				{ compress: 0.92, format: ImageManipulator.SaveFormat.JPEG }
+			);
+
+			setPages((prev) =>
+				prev.map((p, i) => (i === index ? { ...p, uri: result.uri } : p))
+			);
+			setIsCropVisible(false);
+			await success();
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Failed to crop scan';
+			Alert.alert('Crop failed', message);
+		} finally {
+			setIsCropping(false);
+		}
+	}, [pages]);
+
 	return {
 		cameraRef,
 		pageRefs,
@@ -270,5 +308,9 @@ export function usePdfScanner() {
 		handleSavePdf,
 		handleBackToIdle,
 		setCurrentPageIndex,
+		isCropVisible,
+		setIsCropVisible,
+		isCropping,
+		handleApplyCrop,
 	};
 }

@@ -7,10 +7,11 @@ import type { JwtPayload } from "../../types/user.types.js";
 
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
-const publicUser = (user: { _id: unknown; name: string; email: string }) => ({
+const publicUser = (user: any) => ({
   id: user._id,
   name: user.name,
   email: user.email,
+  avatar: user.avatar ?? "",
 });
 
 const issueTokens = (payload: JwtPayload) => {
@@ -111,4 +112,25 @@ export const ResetPasswordService = async ({ token, password }: ResetPasswordInp
   user.set("refreshTokenHash", undefined);
   await user.save();
   return { message: "Password reset successfully." };
+};
+
+export const UpdateProfileService = async (userId: string, data: { name?: string; email?: string; avatar?: string }) => {
+  const user = await UserModel.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  if (data.name !== undefined) user.name = data.name;
+  
+  if (data.email !== undefined && data.email !== user.email) {
+    if (await UserModel.exists({ email: data.email })) {
+      throw new Error("Email already exists");
+    }
+    user.email = data.email;
+  }
+
+  if (data.avatar !== undefined) {
+    user.set("avatar", data.avatar);
+  }
+
+  await user.save();
+  return publicUser(user);
 };

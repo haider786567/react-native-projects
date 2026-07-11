@@ -47,8 +47,15 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
     },
+    profileUpdated(state, action: PayloadAction<{ name: string; email: string; avatar?: string }>) {
+      if (state.user) {
+        state.user.name = action.payload.name;
+        state.user.email = action.payload.email;
+        state.user.avatar = action.payload.avatar;
+      }
+    },
   },
 });
 
-export const { authStarted, authSucceeded, authFailed, sessionRestored, signedOut } = authSlice.actions;
+export const { authStarted, authSucceeded, authFailed, sessionRestored, signedOut, profileUpdated } = authSlice.actions;
 export default authSlice.reducer;

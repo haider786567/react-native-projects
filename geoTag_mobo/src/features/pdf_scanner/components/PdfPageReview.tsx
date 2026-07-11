@@ -13,6 +13,8 @@ import {
 import type { ScannedPage } from '../types/pdf.type';
 import { PdfWatermark } from './PdfWatermark';
 import { useTranslation } from '../../../store/hooks';
+import { useTheme } from '../../../constants/theme';
+import { CropOverlay } from '../../geo_camera/components/CropOverlay';
 
 type PdfPageReviewProps = {
 	pages: ScannedPage[];
@@ -24,6 +26,10 @@ type PdfPageReviewProps = {
 	onAddMore: () => void;
 	onSavePdf: () => void;
 	onBack: () => void;
+	isCropVisible: boolean;
+	setIsCropVisible: (visible: boolean) => void;
+	isCropping: boolean;
+	onApplyCrop: (index: number, region: any) => void;
 };
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -38,37 +44,58 @@ export function PdfPageReview({
 	onAddMore,
 	onSavePdf,
 	onBack,
+	isCropVisible,
+	setIsCropVisible,
+	isCropping,
+	onApplyCrop,
 }: PdfPageReviewProps) {
 	const flatListRef = useRef<FlatList>(null);
 	const { t } = useTranslation();
+	const { isDark, colors: c } = useTheme();
 
 	return (
-		<View className="absolute inset-0 bg-slate-50">
+		<View style={{ flex: 1, backgroundColor: c.bg }}>
+			
 			{/* Header */}
-			<View className="flex-row items-center justify-between border-b border-slate-200 bg-white px-4 pb-4 pt-14">
+			<View style={{ backgroundColor: c.headerBg, borderBottomColor: c.divider }} className="flex-row items-center justify-between border-b px-4 pb-4 pt-14">
 				<Pressable
 					accessibilityRole="button"
 					accessibilityLabel="Go back"
-					className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white active:bg-slate-50"
+					style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+					className="h-10 w-10 items-center justify-center rounded-full border active:bg-slate-50"
 					onPress={onBack}
 				>
-					<Ionicons color="#006767" name="arrow-back" size={20} />
+					<Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="arrow-back" size={20} />
 				</Pressable>
 				<View className="items-center">
-					<Text className="text-[10px] font-bold uppercase tracking-widest text-[#006767]">{t.reviewPages}</Text>
-					<Text className="mt-0.5 text-base font-extrabold text-slate-800">
+					<Text style={{ color: c.tealText }} className="text-[10px] font-bold uppercase tracking-widest">{t.reviewPages}</Text>
+					<Text style={{ color: c.text }} className="mt-0.5 text-base font-extrabold">
 						{currentIndex + 1} of {pages.length} {pages.length === 1 ? t.pageCaptured : t.pagesCaptured}
 					</Text>
 				</View>
-				<Pressable
-					accessibilityRole="button"
-					accessibilityLabel="Remove current page"
-					className="h-10 w-10 items-center justify-center rounded-full bg-rose-50 border border-rose-100 active:bg-rose-100"
-					disabled={pages.length <= 1}
-					onPress={() => onRemovePage(currentIndex)}
-				>
-					<Ionicons color="#ef4444" name="trash-outline" size={18} />
-				</Pressable>
+				
+				{/* Top Right Action Group */}
+				<View className="flex-row items-center gap-2">
+					<Pressable
+						accessibilityRole="button"
+						accessibilityLabel="Crop current page"
+						style={{ backgroundColor: isDark ? 'rgba(45, 212, 191, 0.08)' : '#f0fdfa', borderColor: isDark ? 'rgba(45, 212, 191, 0.15)' : '#ccfbf1' }}
+						className="h-10 w-10 items-center justify-center rounded-full border active:opacity-80"
+						onPress={() => setIsCropVisible(true)}
+					>
+						<Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="crop" size={18} />
+					</Pressable>
+					<Pressable
+						accessibilityRole="button"
+						accessibilityLabel="Remove current page"
+						style={{ backgroundColor: '#fef2f2', borderColor: '#fee2e2' }}
+						className="h-10 w-10 items-center justify-center rounded-full border active:opacity-80"
+						disabled={pages.length <= 1}
+						onPress={() => onRemovePage(currentIndex)}
+					>
+						<Ionicons color="#ef4444" name="trash-outline" size={18} />
+					</Pressable>
+				</View>
 			</View>
 
 			{/* Page carousel */}
@@ -93,7 +120,8 @@ export function PdfPageReview({
 									}
 								}}
 								collapsable={false}
-								className="aspect-[3/4] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+								style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+								className="aspect-[3/4] overflow-hidden rounded-2xl border shadow-sm"
 							>
 								<Image
 									className="h-full w-full"
@@ -127,9 +155,10 @@ export function PdfPageReview({
 									onPageChange(index);
 									flatListRef.current?.scrollToIndex({ index, animated: true });
 								}}
-								className={`h-16 w-12 overflow-hidden rounded-lg border-2 ${
-									index === currentIndex ? 'border-[#006767]' : 'border-slate-200'
-								}`}
+								style={{
+									borderColor: index === currentIndex ? (isDark ? '#2dd4bf' : '#006767') : c.cardBorder,
+								}}
+								className="h-16 w-12 overflow-hidden rounded-lg border-2"
 							>
 								<Image className="h-full w-full" resizeMode="cover" source={{ uri: item.uri }} />
 								<View className="absolute bottom-0 left-0 right-0 bg-black/60 py-0.5">
@@ -142,16 +171,18 @@ export function PdfPageReview({
 			) : null}
 
 			{/* Action buttons */}
-			<View className="flex-row items-center gap-3 border-t border-slate-200 bg-white px-5 pb-8 pt-4">
+			<View style={{ backgroundColor: c.headerBg, borderTopColor: c.divider }} className="flex-row items-center gap-3 border-t px-5 pb-8 pt-4">
 				<Pressable
 					accessibilityRole="button"
 					accessibilityLabel="Add more pages"
-					className="h-14 flex-1 flex-row items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 active:bg-slate-100"
+					style={{ backgroundColor: c.btnSec, borderColor: c.cardBorder }}
+					className="h-14 flex-1 flex-row items-center justify-center gap-2 rounded-2xl border active:opacity-90"
 					onPress={onAddMore}
 				>
-					<Ionicons color="#006767" name="add-outline" size={20} />
-					<Text className="text-base font-bold text-slate-700">{t.addPage}</Text>
+					<Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="add-outline" size={20} />
+					<Text style={{ color: c.btnSecText }} className="text-base font-bold">{t.addPage}</Text>
 				</Pressable>
+				
 				<Pressable
 					accessibilityRole="button"
 					accessibilityLabel="Save as PDF"
@@ -169,6 +200,16 @@ export function PdfPageReview({
 					)}
 				</Pressable>
 			</View>
+
+			{/* Crop Overlay */}
+			{isCropVisible && (
+				<CropOverlay
+					uri={pages[currentIndex].uri}
+					isCropping={isCropping}
+					onApply={(region) => onApplyCrop(currentIndex, region)}
+					onCancel={() => setIsCropVisible(false)}
+				/>
+			)}
 		</View>
 	);
 }

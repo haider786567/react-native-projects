@@ -7,6 +7,7 @@ import {
   RefreshTokenController,
   RegisterController,
   ResetPasswordController,
+  UpdateProfileController,
 } from "./auth.controller.js";
 import {
   validateForgotPassword,
@@ -29,5 +30,6 @@ router.post("/forgot-password", passwordResetLimiter, validateForgotPassword, Fo
 router.post("/reset-password", passwordResetLimiter, validateResetPassword, ResetPasswordController);
 router.post("/refresh-token", authLimiter, validateRefreshToken, RefreshTokenController);
 router.get("/me", identifyUser, GetMeController);
+router.put("/profile", identifyUser, UpdateProfileController);
 
 export default router;
