@@ -1,4 +1,4 @@
-import { changePassword, login, logout, register, requestPasswordReset } from "../services/auth.service";
+import { changePassword, login, logout, register, requestPasswordReset, updateProfileInfo } from "../services/auth.service";
 import { authFailed, authStarted, authSucceeded, signedOut } from "../store/auth.slice";
 import type { LoginInput, RegisterInput } from "../types/auth.type";
 import { getApiErrorMessage } from "../../../services/api";
@@ -47,6 +47,19 @@ export const useAuth = () => {
     }
   };
 
+  const handleUpdateProfile = async (data: { name: string; email: string; avatar?: string }) => {
+    dispatch(authStarted());
+    try {
+      const user = await updateProfileInfo(data);
+      dispatch(authSucceeded(user));
+      return user;
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      dispatch(authFailed(message));
+      throw new Error(message);
+    }
+  };
+
   return {
     ...auth,
     handleLogin,
@@ -54,5 +67,6 @@ export const useAuth = () => {
     handleLogout,
     handleForgotPassword,
     handleResetPassword,
+    handleUpdateProfile,
   };
 };

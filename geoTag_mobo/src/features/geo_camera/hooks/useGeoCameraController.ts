@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 
-import { WatermarkService } from '@/src/services/watermark.service';
+import { WatermarkService } from '../service/watermark.service';
 import { LocalGalleryService } from '@/src/services/localGallery.service';
 import { TIMER_OPTIONS } from '../constants/camera.constants';
 import {

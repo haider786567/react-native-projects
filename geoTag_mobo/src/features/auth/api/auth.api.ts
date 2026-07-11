@@ -13,3 +13,6 @@ export const forgotPassword = async (email: string) =>
   (await api.post("/auth/forgot-password", { email })).data;
 export const resetPassword = async (token: string, password: string, confirmPassword: string) =>
   (await api.post("/auth/reset-password", { token, password, confirmPassword })).data;
+
+export const updateProfile = async (data: { name: string; email: string; avatar?: string }) =>
+  (await api.put<User>("/auth/profile", data)).data;

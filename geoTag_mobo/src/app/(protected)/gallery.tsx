@@ -18,13 +18,15 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import { LocalGalleryService, LocalGalleryItem } from '../../services/localGallery.service';
 import { useTranslation } from '../../store/hooks';
+import { useTheme } from '../../constants/theme';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COLUMN_WIDTH = (SCREEN_WIDTH - 48) / 2;
 
 export default function GalleryScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { isDark, colors: c } = useTheme();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<LocalGalleryItem[]>([]);
   const [filter, setFilter] = useState<'all' | 'geo' | 'pdf'>('all');
@@ -48,7 +50,6 @@ export default function GalleryScreen() {
     loadGallery();
   }, [loadGallery]);
 
-  // Load file size when an item is selected for preview
   useEffect(() => {
     if (!selectedItem) {
       setFileSize('');
@@ -108,34 +109,39 @@ export default function GalleryScreen() {
     return item.type === filter;
   });
 
+
+
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'bottom']}>
       {/* Header */}
-      <View className="flex-row items-center justify-between border-b border-slate-200 bg-white px-4 py-4">
+      <View style={{ backgroundColor: c.headerBg, borderBottomColor: c.divider }} className="flex-row items-center justify-between border-b px-4 py-4">
         <Pressable
-          className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white active:bg-slate-50"
+          style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+          className="h-10 w-10 items-center justify-center rounded-full border active:bg-slate-50"
           onPress={() => router.back()}
         >
-          <Ionicons color="#006767" name="arrow-back" size={20} />
+          <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="arrow-back" size={20} />
         </Pressable>
-        <Text className="text-lg font-bold text-slate-900">Local Gallery</Text>
+        <Text style={{ color: c.text }} className="text-lg font-bold">Local Gallery</Text>
         <View className="w-10" />
       </View>
 
       {/* Segment Filter */}
-      <View className="flex-row border-b border-slate-200 bg-white p-3 gap-2">
+      <View style={{ backgroundColor: c.headerBg, borderBottomColor: c.divider }} className="flex-row border-b p-3 gap-2">
         {(['all', 'geo', 'pdf'] as const).map((type) => {
           const active = filter === type;
           const label = type === 'all' ? 'All' : type === 'geo' ? 'Photos' : 'PDFs';
           return (
             <Pressable
               key={type}
-              className={`flex-1 rounded-xl py-2.5 items-center justify-center border ${
-                active ? 'bg-[#006767] border-[#006767]' : 'bg-slate-50 border-slate-200 active:bg-slate-100'
-              }`}
+              style={{
+                backgroundColor: active ? '#006767' : isDark ? '#0f2020' : '#f1f5f9',
+                borderColor: active ? '#006767' : c.cardBorder,
+              }}
+              className="flex-1 rounded-xl py-2.5 items-center justify-center border active:opacity-90"
               onPress={() => setFilter(type)}
             >
-              <Text className={`font-bold text-xs ${active ? 'text-white' : 'text-slate-600'}`}>
+              <Text className={`font-bold text-xs ${active ? 'text-white' : ''}`} style={{ color: active ? '#ffffff' : c.textMuted }}>
                 {label}
               </Text>
             </Pressable>
@@ -146,15 +152,15 @@ export default function GalleryScreen() {
       {/* Gallery Items Grid */}
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#006767" />
+          <ActivityIndicator color={isDark ? '#2dd4bf' : '#006767'} />
         </View>
       ) : filteredItems.length === 0 ? (
         <View className="flex-1 items-center justify-center p-8">
-          <View className="h-20 w-20 items-center justify-center rounded-full bg-slate-100 mb-4">
+          <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="h-20 w-20 items-center justify-center rounded-full mb-4 border">
             <Ionicons color="#94a3b8" name="images-outline" size={32} />
           </View>
-          <Text className="text-slate-900 font-bold text-base">No items found</Text>
-          <Text className="text-slate-400 text-xs text-center mt-1">
+          <Text style={{ color: c.text }} className="font-bold text-base">No items found</Text>
+          <Text style={{ color: c.textMuted }} className="text-xs text-center mt-1">
             Capture a photo or save a scanned document to see it in your local gallery.
           </Text>
         </View>
@@ -167,15 +173,15 @@ export default function GalleryScreen() {
           columnWrapperStyle={{ gap: 16 }}
           renderItem={({ item }) => (
             <View
-              style={{ width: COLUMN_WIDTH }}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+              style={{ width: COLUMN_WIDTH, backgroundColor: c.card, borderColor: c.cardBorder }}
+              className="overflow-hidden rounded-2xl border shadow-sm"
             >
               {/* Media Preview Thumbnail */}
               <Pressable onPress={() => setSelectedItem(item)}>
-                <View className="aspect-[4/3] w-full bg-slate-100 justify-center items-center">
+                <View style={{ backgroundColor: c.itemThumBg }} className="aspect-[4/3] w-full justify-center items-center">
                   {item.type === 'pdf' ? (
                     <View className="items-center justify-center p-4">
-                      <Ionicons color="#006767" name="document-text-outline" size={40} />
+                      <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="document-text-outline" size={40} />
                       <Text className="text-[10px] font-bold text-slate-400 mt-2 uppercase">PDF Document</Text>
                     </View>
                   ) : (
@@ -186,7 +192,7 @@ export default function GalleryScreen() {
 
               {/* Card Footer Details */}
               <View className="p-3">
-                <Text className="font-bold text-slate-950 text-xs" numberOfLines={1}>
+                <Text style={{ color: c.text }} className="font-bold text-xs" numberOfLines={1}>
                   {item.title}
                 </Text>
                 <Text className="text-[9px] text-slate-400 font-semibold mt-0.5" numberOfLines={1}>
@@ -197,13 +203,13 @@ export default function GalleryScreen() {
                 </Text>
                 
                 {/* Action buttons (Preview and Delete) */}
-                <View className="flex-row items-center justify-between border-t border-slate-100 mt-2.5 pt-2.5">
+                <View style={{ borderTopColor: c.divider }} className="flex-row items-center justify-between border-t mt-2.5 pt-2.5">
                   <Pressable
                     className="flex-row items-center gap-1 active:opacity-60"
                     onPress={() => setSelectedItem(item)}
                   >
-                    <Ionicons color="#006767" name="eye-outline" size={14} />
-                    <Text className="text-[10px] font-bold text-[#006767]">View</Text>
+                    <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="eye-outline" size={14} />
+                    <Text style={{ color: c.tealText }} className="text-[10px] font-bold">View</Text>
                   </Pressable>
                   <Pressable
                     className="h-6 w-6 items-center justify-center rounded-full bg-rose-50 border border-rose-100 active:bg-rose-100"
@@ -265,10 +271,10 @@ export default function GalleryScreen() {
             </View>
 
             {/* Details Panel Overlay */}
-            <View className="bg-slate-900/90 border-t border-white/5 p-5 pb-10">
+            <View className="bg-[#081212]/90 border-t border-white/5 p-5 pb-10">
               <View className="flex-row items-center gap-2 mb-2">
-                <Ionicons color="#10b981" name="location" size={16} />
-                <Text className="text-[10px] font-bold text-[#10b981] uppercase tracking-widest">Geotag Stamp</Text>
+                <Ionicons color="#2dd4bf" name="location" size={16} />
+                <Text className="text-[10px] font-bold text-[#2dd4bf] uppercase tracking-widest">Geotag Stamp</Text>
               </View>
               <Text className="text-white font-extrabold text-lg leading-6">{selectedItem.placeName ?? 'Saved photo'}</Text>
               
@@ -293,16 +299,17 @@ export default function GalleryScreen() {
           </View>
         ) : selectedItem?.type === 'pdf' ? (
           /* PDF PREVIEWER & INFO CARD */
-          <SafeAreaView className="flex-1 bg-slate-50 justify-between" edges={['top', 'bottom']}>
+          <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'bottom']}>
             {/* Header */}
-            <View className="flex-row items-center justify-between border-b border-slate-200 bg-white px-4 py-4">
+            <View style={{ backgroundColor: c.headerBg, borderBottomColor: c.divider }} className="flex-row items-center justify-between border-b px-4 py-4">
               <Pressable
-                className="h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white active:bg-slate-50"
+                style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+                className="h-10 w-10 items-center justify-center rounded-full border active:bg-slate-50"
                 onPress={() => setSelectedItem(null)}
               >
-                <Ionicons color="#006767" name="close" size={24} />
+                <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="close" size={24} />
               </Pressable>
-              <Text className="text-slate-900 font-extrabold text-base">Document Info</Text>
+              <Text style={{ color: c.text }} className="font-extrabold text-base">Document Info</Text>
               <Pressable
                 className="h-10 w-10 items-center justify-center rounded-full bg-rose-50 border border-rose-100 active:bg-rose-100"
                 onPress={() => handleDelete(selectedItem)}
@@ -313,56 +320,56 @@ export default function GalleryScreen() {
 
             {/* Content Details */}
             <ScrollView contentContainerStyle={{ padding: 24, alignItems: 'center' }}>
-              <View className="h-32 w-32 items-center justify-center rounded-3xl bg-teal-50 shadow-sm border border-teal-100 mb-6">
-                <Ionicons color="#006767" name="document-text" size={64} />
+              <View style={{ backgroundColor: c.iconBg, borderColor: c.cardBorder }} className="h-32 w-32 items-center justify-center rounded-3xl border mb-6">
+                <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="document-text" size={64} />
               </View>
 
-              <Text className="text-2xl font-black text-slate-900 text-center">{selectedItem.title}</Text>
+              <Text style={{ color: c.text }} className="text-2xl font-black text-center">{selectedItem.title}</Text>
               <Text className="text-xs text-slate-400 mt-1 font-semibold">Local PDF File</Text>
 
               {/* Stats Grid */}
               <View className="flex-row gap-3 mt-6 w-full">
-                <View className="flex-1 items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <Text className="text-lg font-bold text-slate-900">{fileSize || '—'}</Text>
+                <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="flex-1 items-center rounded-2xl border p-4 shadow-sm">
+                  <Text style={{ color: c.text }} className="text-lg font-bold">{fileSize || '—'}</Text>
                   <Text className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">File Size</Text>
                 </View>
-                <View className="flex-1 items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <Text className="text-lg font-bold text-slate-900">PDF</Text>
+                <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="flex-1 items-center rounded-2xl border p-4 shadow-sm">
+                  <Text style={{ color: c.text }} className="text-lg font-bold">PDF</Text>
                   <Text className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Format</Text>
                 </View>
               </View>
 
               {/* Watermark GPS info */}
-              <View className="w-full rounded-2xl border border-slate-200 bg-white p-5 mt-6 shadow-sm">
+              <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="w-full rounded-2xl border p-5 mt-6 shadow-sm">
                 <View className="flex-row items-center gap-2 mb-3">
-                  <Ionicons color="#006767" name="location-outline" size={18} />
-                  <Text className="font-bold text-slate-900 text-sm">Geotag Metadata</Text>
+                  <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="location-outline" size={18} />
+                  <Text style={{ color: c.text }} className="font-bold text-sm">Geotag Metadata</Text>
                 </View>
                 
                 <View className="gap-2">
-                  <View className="flex-row justify-between border-b border-slate-100 pb-2">
+                  <View style={{ borderBottomColor: c.divider }} className="flex-row justify-between border-b pb-2">
                     <Text className="text-xs text-slate-400">Captured Location</Text>
-                    <Text className="text-xs font-bold text-slate-800" style={{ maxWidth: '60%' }} numberOfLines={1}>
+                    <Text style={{ color: c.text, maxWidth: '60%' }} className="text-xs font-bold" numberOfLines={1}>
                       {selectedItem.placeName ?? 'Local scan'}
                     </Text>
                   </View>
                   
                   {selectedItem.coords ? (
                     <>
-                      <View className="flex-row justify-between border-b border-slate-100 pb-2">
+                      <View style={{ borderBottomColor: c.divider }} className="flex-row justify-between border-b pb-2">
                         <Text className="text-xs text-slate-400">Latitude</Text>
-                        <Text className="text-xs font-bold text-slate-800">{selectedItem.coords.latitude?.toFixed(6)}</Text>
+                        <Text style={{ color: c.text }} className="text-xs font-bold">{selectedItem.coords.latitude?.toFixed(6)}</Text>
                       </View>
-                      <View className="flex-row justify-between border-b border-slate-100 pb-2">
+                      <View style={{ borderBottomColor: c.divider }} className="flex-row justify-between border-b pb-2">
                         <Text className="text-xs text-slate-400">Longitude</Text>
-                        <Text className="text-xs font-bold text-slate-800">{selectedItem.coords.longitude?.toFixed(6)}</Text>
+                        <Text style={{ color: c.text }} className="text-xs font-bold">{selectedItem.coords.longitude?.toFixed(6)}</Text>
                       </View>
                     </>
                   ) : null}
 
                   <View className="flex-row justify-between">
                     <Text className="text-xs text-slate-400">Created Time</Text>
-                    <Text className="text-xs font-bold text-slate-800">
+                    <Text style={{ color: c.text }} className="text-xs font-bold">
                       {new Date(selectedItem.capturedAt).toLocaleString()}
                     </Text>
                   </View>
@@ -370,16 +377,16 @@ export default function GalleryScreen() {
               </View>
 
               {/* Local File Path Description */}
-              <View className="w-full rounded-2xl bg-slate-100 p-4 mt-6">
+              <View style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : '#f1f5f9' }} className="w-full rounded-2xl p-4 mt-6">
                 <Text className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Device Path</Text>
-                <Text className="text-[10px] text-slate-500 font-semibold mt-1" numberOfLines={2}>
+                <Text className="text-[10px] text-slate-400 font-semibold mt-1" numberOfLines={2}>
                   {selectedItem.uri}
                 </Text>
               </View>
             </ScrollView>
 
             {/* Bottom Actions */}
-            <View className="border-t border-slate-200 bg-white p-5 gap-3">
+            <View style={{ backgroundColor: c.headerBg, borderTopColor: c.divider }} className="border-t p-5 gap-3">
               <Pressable
                 className="h-14 flex-row items-center justify-center gap-2 rounded-2xl bg-[#006767] active:opacity-90 shadow-sm"
                 onPress={() => handleShare(selectedItem)}
@@ -389,10 +396,11 @@ export default function GalleryScreen() {
               </Pressable>
               
               <Pressable
-                className="h-14 flex-row items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 active:bg-slate-100"
+                style={{ backgroundColor: isDark ? '#0f2020' : '#f8f9fa', borderColor: c.cardBorder }}
+                className="h-14 flex-row items-center justify-center gap-2 rounded-2xl border active:bg-slate-100"
                 onPress={() => setSelectedItem(null)}
               >
-                <Text className="text-base font-bold text-slate-700">Close</Text>
+                <Text style={{ color: c.text }} className="text-base font-bold">Close</Text>
               </Pressable>
             </View>
           </SafeAreaView>

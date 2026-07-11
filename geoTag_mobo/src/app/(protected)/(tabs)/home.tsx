@@ -5,6 +5,7 @@ import { Alert, Pressable, ScrollView, Text, View, ActivityIndicator } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
 import { useTranslation } from '../../../store/hooks';
+import { useTheme } from '../../../constants/theme';
 import { LocalGalleryService, LocalGalleryItem, GalleryStats } from '../../../services/localGallery.service';
 
 function getGreetingKey(h: number) {
@@ -15,6 +16,7 @@ function getGreetingKey(h: number) {
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const { isDark, colors: c } = useTheme();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<GalleryStats>({
     totalScans: 0,
@@ -26,7 +28,6 @@ export default function HomeScreen() {
   });
   const [recentActivity, setRecentActivity] = useState<LocalGalleryItem[]>([]);
 
-  // Fetch stats and scans whenever the home screen comes into focus
   useFocusEffect(
     useCallback(() => {
       let active = true;
@@ -38,11 +39,10 @@ export default function HomeScreen() {
           ]);
           if (active) {
             setStats(fetchedStats);
-            // Show only the 3 most recent scans on dashboard
             setRecentActivity(fetchedScans.slice(0, 3));
           }
-        } catch (error) {
-          // Fallback gracefully on local read error
+        } catch {
+          // Fallback
         } finally {
           if (active) {
             setLoading(false);
@@ -61,25 +61,27 @@ export default function HomeScreen() {
   const greetingText = t[greetingKey as 'goodMorning' | 'goodAfternoon' | 'goodEvening'] || t.goodMorning;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        
         {/* ── Header ── */}
         <View className="px-5 pb-6 pt-4">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-xs font-bold uppercase tracking-widest text-[#006767]">Buildrigs</Text>
-              <Text className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+              <Text style={{ color: c.tealText }} className="text-xs font-bold uppercase tracking-widest">Buildrigs</Text>
+              <Text style={{ color: c.text }} className="mt-1 text-3xl font-extrabold tracking-tight">
                 {greetingText} 👋
               </Text>
-              <Text className="mt-1 text-sm text-slate-500">
+              <Text style={{ color: c.textMuted }} className="mt-1 text-sm">
                 {t.whatToCapture}
               </Text>
             </View>
             <Pressable
-              className="h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white active:bg-slate-100"
+              style={{ backgroundColor: c.notifBtnBg, borderColor: c.cardBorder }}
+              className="h-12 w-12 items-center justify-center rounded-full border active:opacity-85"
               onPress={() => Alert.alert('Notifications', 'You are all caught up.')}
             >
-              <Ionicons color="#006767" name="notifications-outline" size={22} />
+              <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="notifications-outline" size={22} />
               <View className="absolute right-3.5 top-3.5 h-2 w-2 rounded-full bg-red-500" />
             </Pressable>
           </View>
@@ -88,7 +90,7 @@ export default function HomeScreen() {
         {/* ── Quick Actions ── */}
         <View className="flex-row gap-3 px-5">
           <Pressable
-            className="flex-1 overflow-hidden rounded-2xl bg-[#006767] active:opacity-95"
+            className="flex-1 overflow-hidden rounded-3xl bg-[#006767] active:opacity-95"
             onPress={() => router.push('/pdfScanner')}
           >
             <View className="h-40 justify-between p-5">
@@ -105,16 +107,17 @@ export default function HomeScreen() {
           </Pressable>
 
           <Pressable
-            className="flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-white active:bg-slate-50"
+            style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+            className="flex-1 overflow-hidden rounded-3xl border active:opacity-90"
             onPress={() => router.push('/GeoScanner')}
           >
             <View className="h-40 justify-between p-5">
-              <View className="h-11 w-11 items-center justify-center rounded-xl bg-slate-100">
-                <Ionicons color="#006767" name="location-outline" size={22} />
+              <View style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9' }} className="h-11 w-11 items-center justify-center rounded-xl">
+                <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="location-outline" size={22} />
               </View>
               <View>
-                <Text className="text-lg font-bold text-slate-900">{t.geoScan}</Text>
-                <Text className="mt-0.5 text-xs text-slate-500">
+                <Text style={{ color: c.text }} className="text-lg font-bold">{t.geoScan}</Text>
+                <Text style={{ color: c.textMuted }} className="mt-0.5 text-xs">
                   {t.geoScanDesc}
                 </Text>
               </View>
@@ -122,25 +125,25 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* ── Stats Strip (Quiet Authority card style) ── */}
+        {/* ── Stats Strip ── */}
         <View className="mt-6 px-5">
-          <View className="flex-row items-center rounded-2xl border border-slate-200 bg-white p-4 justify-around">
+          <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="flex-row items-center rounded-2xl border p-4 justify-around">
             <View className="items-center flex-1">
-              <Text className="text-2xl font-black text-slate-900">
+              <Text style={{ color: c.text }} className="text-2xl font-black">
                 {loading ? '—' : stats.totalScans}
               </Text>
               <Text className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{t.totalScans}</Text>
             </View>
-            <View className="h-8 w-px bg-slate-200" />
+            <View style={{ backgroundColor: c.divider }} className="h-8 w-px" />
             <View className="items-center flex-1">
-              <Text className="text-2xl font-black text-[#006767]">
+              <Text style={{ color: c.tealText }} className="text-2xl font-black">
                 {loading ? '—' : stats.syncedCount}
               </Text>
               <Text className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{t.cloudSynced}</Text>
             </View>
-            <View className="h-8 w-px bg-slate-200" />
+            <View style={{ backgroundColor: c.divider }} className="h-8 w-px" />
             <View className="items-center flex-1">
-              <Text className="text-2xl font-black text-slate-900">
+              <Text style={{ color: c.text }} className="text-2xl font-black">
                 {loading ? '—' : stats.thisWeekCount}
               </Text>
               <Text className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{t.thisWeek}</Text>
@@ -150,14 +153,14 @@ export default function HomeScreen() {
 
         {/* ── Feature Highlight Card ── */}
         <View className="mt-6 px-5">
-          <View className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-5">
+          <View style={{ backgroundColor: c.card, borderColor: c.cardBorder }} className="overflow-hidden rounded-2xl border p-5">
             <View className="flex-row items-center">
-              <View className="h-12 w-12 items-center justify-center rounded-xl bg-teal-50">
-                <Ionicons color="#006767" name="sparkles-outline" size={24} />
+              <View style={{ backgroundColor: c.iconBg }} className="h-12 w-12 items-center justify-center rounded-xl">
+                <Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="sparkles-outline" size={24} />
               </View>
               <View className="ml-4 flex-1">
-                <Text className="text-base font-bold text-slate-900">{t.smartCrop}</Text>
-                <Text className="mt-0.5 text-xs text-slate-500 leading-4">
+                <Text style={{ color: c.text }} className="text-base font-bold">{t.smartCrop}</Text>
+                <Text style={{ color: c.textMuted }} className="mt-0.5 text-xs leading-4">
                   {t.smartCropDesc}
                 </Text>
               </View>
@@ -168,25 +171,26 @@ export default function HomeScreen() {
         {/* ── Recent Activity ── */}
         <View className="mt-6 px-5">
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-lg font-bold text-slate-900">{t.recentActivity}</Text>
+            <Text style={{ color: c.text }} className="text-lg font-bold">{t.recentActivity}</Text>
             <Pressable onPress={() => router.push('/gallery')}>
-              <Text className="text-sm font-semibold text-[#006767]">{t.viewAll}</Text>
+              <Text style={{ color: c.tealText }} className="text-sm font-bold">{t.viewAll}</Text>
             </Pressable>
           </View>
 
           {loading ? (
             <View className="py-8 items-center justify-center">
-              <ActivityIndicator color="#006767" />
+              <ActivityIndicator color={isDark ? '#2dd4bf' : '#006767'} />
             </View>
           ) : recentActivity.length === 0 ? (
-            <View className="rounded-2xl border border-dashed border-slate-200 bg-white/40 p-8 items-center justify-center">
+            <View style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: c.cardBorder }} className="rounded-2xl border border-dashed p-8 items-center justify-center">
               <Text className="text-sm text-slate-400 font-semibold text-center">No scans recorded yet.</Text>
             </View>
           ) : (
             recentActivity.map((item) => (
               <Pressable
                 key={item.id}
-                className="mb-2.5 flex-row items-center rounded-2xl border border-slate-200 bg-white p-4 active:bg-slate-50"
+                style={{ backgroundColor: c.card, borderColor: c.cardBorder }}
+                className="mb-2.5 flex-row items-center rounded-2xl border p-4 active:opacity-90"
                 onPress={async () => {
                   try {
                     await Sharing.shareAsync(item.uri, {
@@ -198,23 +202,23 @@ export default function HomeScreen() {
                   }
                 }}
               >
-                <View className="h-11 w-11 items-center justify-center rounded-xl bg-slate-100">
+                <View style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9' }} className="h-11 w-11 items-center justify-center rounded-xl">
                   <Ionicons
-                    color="#006767"
+                    color={isDark ? '#2dd4bf' : '#006767'}
                     name={item.type === 'pdf' ? 'document-text-outline' : 'location-outline'}
                     size={20}
                   />
                 </View>
                 <View className="mx-3 flex-1">
-                  <Text className="font-semibold text-slate-900" numberOfLines={1}>
+                  <Text style={{ color: c.text }} className="font-semibold text-xs" numberOfLines={1}>
                     {item.title}
                   </Text>
-                  <Text className="mt-0.5 text-xs text-slate-400">
+                  <Text className="mt-0.5 text-[10px] text-slate-400 font-medium">
                     {item.placeName ?? 'Local'} · {new Date(item.capturedAt).toLocaleDateString()}
                   </Text>
                 </View>
-                <View className="rounded-full bg-teal-50 px-2.5 py-1">
-                  <Text className="text-[10px] font-bold uppercase tracking-wider text-[#006767]">
+                <View style={{ backgroundColor: c.pillBg }} className="rounded-full px-2.5 py-1">
+                  <Text style={{ color: c.tealText }} className="text-[10px] font-extrabold uppercase tracking-wider">
                     {t.synced}
                   </Text>
                 </View>

@@ -1,11 +1,12 @@
-import { forgotPassword, getMe, loginUser, logoutUser, registerUser, resetPassword } from "../api/auth.api";
+import { forgotPassword, getMe, loginUser, logoutUser, registerUser, resetPassword, updateProfile } from "../api/auth.api";
 import type { LoginInput, RegisterInput, User } from "../types/auth.type";
 import { clearTokens, getAccessToken, saveTokens } from "../../../services/secureStore";
 
-const normalizeUser = (user: User & { _id?: string }): User => ({
+const normalizeUser = (user: any): User => ({
   id: user.id ?? user._id ?? "",
   name: user.name,
   email: user.email,
+  avatar: user.avatar ?? "",
 });
 
 export const login = async (data: LoginInput) => {
@@ -45,3 +46,7 @@ export const changePassword = (
   password: string,
   confirmPassword: string,
 ) => resetPassword(token, password, confirmPassword);
+
+export const updateProfileInfo = async (data: { name: string; email: string; avatar?: string }) => {
+  return normalizeUser(await updateProfile(data));
+};

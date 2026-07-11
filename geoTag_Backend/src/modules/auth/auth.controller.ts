@@ -7,6 +7,7 @@ import {
   RefreshTokenService,
   RegisterService,
   ResetPasswordService,
+  UpdateProfileService,
 } from "./auth.service.js";
 
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Internal server error.";
@@ -83,6 +84,14 @@ export const RefreshTokenController = async (req: Request, res: Response) => {
 export const GetMeController = async (req: Request, res: Response) => {
   try {
     res.json(await GetmeService(req.user.id));
+  } catch (error) {
+    respondWithError(res, error);
+  }
+};
+
+export const UpdateProfileController = async (req: Request, res: Response) => {
+  try {
+    res.json(await UpdateProfileService(req.user.id, req.body));
   } catch (error) {
     respondWithError(res, error);
   }

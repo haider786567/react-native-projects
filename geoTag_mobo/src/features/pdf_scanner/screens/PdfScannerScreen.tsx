@@ -12,9 +12,25 @@ import Screen from '@/src/components/Screen';
 import { usePdfScanner } from '../hooks/pdf.hooks';
 import { PdfPageReview } from '../components/PdfPageReview';
 import { useTranslation } from '../../../store/hooks';
+import { useTheme } from '../../../constants/theme';
 
 export default function PdfScannerScreen() {
 	const { t } = useTranslation();
+	const { isDark } = useTheme();
+	const c = {
+		bg: isDark ? '#0f172a' : '#f8f9fa',
+		card: isDark ? 'bg-slate-900 border border-white/5' : 'bg-white border border-slate-200 shadow-sm',
+		text: isDark ? 'text-white' : 'text-slate-900',
+		textMuted: isDark ? 'text-slate-400' : 'text-slate-500',
+		border: isDark ? 'border-white/5' : 'border-slate-200',
+		tealPillBg: isDark ? 'bg-teal-950/45' : 'bg-teal-50',
+		tealText: isDark ? 'text-teal-400' : 'text-[#006767]',
+		amberPillBg: isDark ? 'bg-amber-950/45' : 'bg-amber-50',
+		amberText: isDark ? 'text-amber-400' : 'text-[#f59e0b]',
+		indigoPillBg: isDark ? 'bg-indigo-950/45' : 'bg-indigo-50',
+		indigoText: isDark ? 'text-indigo-400' : 'text-[#4f46e5]',
+	};
+
 	const {
 		cameraRef,
 		pageRefs,
@@ -36,35 +52,39 @@ export default function PdfScannerScreen() {
 		handleSavePdf,
 		handleBackToIdle,
 		setCurrentPageIndex,
+		isCropVisible,
+		setIsCropVisible,
+		isCropping,
+		handleApplyCrop,
 	} = usePdfScanner();
 
 	// ──────────────────────────── Idle mode ────────────────────────────
 	if (mode === 'idle') {
 		return (
 			<Screen>
-				<View className="flex-1 bg-slate-55 px-5 pt-8" style={{ backgroundColor: '#f8f9fa' }}>
+				<View className="flex-1 px-5 pt-8" style={{ backgroundColor: c.bg }}>
 					{/* Header */}
 					<View className="mb-6">
-						<Text className="text-3xl font-extrabold tracking-tight text-slate-900">{t.pdfScannerTitle}</Text>
-						<Text className="mt-1 text-sm leading-5 text-slate-500">
+						<Text className={`text-3xl font-extrabold tracking-tight ${c.text}`}>{t.pdfScannerTitle}</Text>
+						<Text className={`mt-1 text-sm leading-5 ${c.textMuted}`}>
 							{t.pdfScannerSubtitle}
 						</Text>
 					</View>
 
 					{/* Scanner card */}
-					<View className="items-center rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm">
-						<View className="h-24 w-24 items-center justify-center rounded-full bg-teal-50">
+					<View className={`items-center rounded-2xl px-6 py-8 ${c.card}`}>
+						<View className="h-24 w-24 items-center justify-center rounded-full bg-teal-50/10">
 							<View className="h-16 w-16 items-center justify-center rounded-2xl bg-[#006767]">
 								<Ionicons color="white" name="document-text-outline" size={32} />
 							</View>
 						</View>
-						<Text className="mt-6 text-center text-2xl font-bold text-slate-900">{t.scanADoc}</Text>
-						<Text className="mt-2 max-w-md text-center text-sm leading-6 text-slate-500">
+						<Text className={`mt-6 text-center text-2xl font-bold ${c.text}`}>{t.scanADoc}</Text>
+						<Text className={`mt-2 max-w-md text-center text-sm leading-6 ${c.textMuted}`}>
 							{t.scanADocDesc}
 						</Text>
 						<Pressable
 							accessibilityRole="button"
-							className="mt-6 w-full max-w-sm flex-row items-center justify-center rounded-xl bg-[#006767] py-4 active:opacity-80"
+							className="mt-6 w-full max-w-sm flex-row items-center justify-center rounded-xl bg-[#006767] py-4 active:opacity-85"
 							onPress={handleStartScanning}
 						>
 							<Ionicons color="white" name="scan" size={20} />
@@ -74,35 +94,35 @@ export default function PdfScannerScreen() {
 
 					{/* Info cards */}
 					<View className="mt-6 gap-3">
-						<View className="flex-row items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-							<View className="h-11 w-11 items-center justify-center rounded-xl bg-teal-50">
-								<Ionicons color="#006767" name="location" size={22} />
+						<View className={`flex-row items-center rounded-2xl p-4 ${c.card}`}>
+							<View className={`h-11 w-11 items-center justify-center rounded-xl ${c.tealPillBg}`}>
+								<Ionicons color={isDark ? '#2dd4bf' : '#006767'} name="location" size={22} />
 							</View>
 							<View className="mx-3 flex-1">
-								<Text className="font-semibold text-slate-900">{t.locWatermark}</Text>
-								<Text className="mt-0.5 text-xs text-slate-500">
+								<Text className={`font-semibold ${c.text}`}>{t.locWatermark}</Text>
+								<Text className={`mt-0.5 text-xs ${c.textMuted}`}>
 									{t.locWatermarkDesc}
 								</Text>
 							</View>
 						</View>
-						<View className="flex-row items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-							<View className="h-11 w-11 items-center justify-center rounded-xl bg-amber-50">
+						<View className={`flex-row items-center rounded-2xl p-4 ${c.card}`}>
+							<View className={`h-11 w-11 items-center justify-center rounded-xl ${c.amberPillBg}`}>
 								<Ionicons color="#f59e0b" name="time" size={22} />
 							</View>
 							<View className="mx-3 flex-1">
-								<Text className="font-semibold text-slate-900">{t.timestamp}</Text>
-								<Text className="mt-0.5 text-xs text-slate-500">
+								<Text className={`font-semibold ${c.text}`}>{t.timestamp}</Text>
+								<Text className={`mt-0.5 text-xs ${c.textMuted}`}>
 									{t.timestampDesc}
 								</Text>
 							</View>
 						</View>
-						<View className="flex-row items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-							<View className="h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
+						<View className={`flex-row items-center rounded-2xl p-4 ${c.card}`}>
+							<View className={`h-11 w-11 items-center justify-center rounded-xl ${c.indigoPillBg}`}>
 								<Ionicons color="#4f46e5" name="document-attach" size={22} />
 							</View>
 							<View className="mx-3 flex-1">
-								<Text className="font-semibold text-slate-900">{t.downloadPdf}</Text>
-								<Text className="mt-0.5 text-xs text-slate-500">
+								<Text className={`font-semibold ${c.text}`}>{t.downloadPdf}</Text>
+								<Text className={`mt-0.5 text-xs ${c.textMuted}`}>
 									{t.downloadPdfDesc}
 								</Text>
 							</View>
@@ -287,6 +307,10 @@ export default function PdfScannerScreen() {
 			onAddMore={handleAddMore}
 			onSavePdf={handleSavePdf}
 			onBack={handleBackToIdle}
+			isCropVisible={isCropVisible}
+			setIsCropVisible={setIsCropVisible}
+			isCropping={isCropping}
+			onApplyCrop={handleApplyCrop}
 		/>
 	);
 }
